@@ -267,7 +267,7 @@
 
 <footer>
   <p>2026 March Madness Bracket Predictor · Powered by KenPom-style efficiency ratings + Monte Carlo simulation</p>
-  <p style="margin-top:6px;"><a href="https://github.com/atomlinsonc/Monetary-Policy">GitHub</a> · Predictions for entertainment only · Not financial or gambling advice</p>
+  <p style="margin-top:6px;"><a href="https://github.com/atomlinsonc/2026-March-Madness-Bracket-Predictor">GitHub</a> · Predictions for entertainment only · Not financial or gambling advice</p>
 </footer>
 
 <script>
@@ -276,18 +276,18 @@
 // ============================================================
 const DATA = {
   championshipOdds: [
-    { rank:1,  team:"Duke",          seed:1, region:"East",    r:"east",    record:"32-2", champ:18.0, ff:40.8, e8:51.2, s16:62.7 },
-    { rank:2,  team:"Michigan",      seed:1, region:"Midwest", r:"midwest", record:"31-3", champ:16.8, ff:41.9, e8:52.3, s16:65.3 },
-    { rank:3,  team:"Arizona",       seed:1, region:"West",    r:"west",    record:"32-2", champ:13.6, ff:37.7, e8:48.2, s16:60.2 },
-    { rank:4,  team:"Florida",       seed:1, region:"South",   r:"south",   record:"26-7", champ:10.5, ff:32.1, e8:42.7, s16:57.0 },
-    { rank:5,  team:"Houston",       seed:2, region:"South",   r:"south",   record:"28-6", champ:6.2,  ff:23.7, e8:31.9, s16:42.9 },
-    { rank:6,  team:"UConn",         seed:2, region:"East",    r:"east",    record:"29-5", champ:4.6,  ff:17.7, e8:26.0, s16:36.5 },
-    { rank:7,  team:"Purdue",        seed:2, region:"West",    r:"west",    record:"27-8", champ:4.1,  ff:18.5, e8:27.3, s16:39.0 },
-    { rank:8,  team:"Iowa State",    seed:2, region:"Midwest", r:"midwest", record:"27-7", champ:4.0,  ff:16.5, e8:23.9, s16:34.6 },
-    { rank:9,  team:"Michigan State",seed:3, region:"East",    r:"east",    record:"25-7", champ:3.9,  ff:20.4, e8:51.9, s16:65.1 },
-    { rank:10, team:"Gonzaga",       seed:3, region:"West",    r:"west",    record:"30-3", champ:3.4,  ff:20.9, e8:51.4, s16:66.6 },
-    { rank:11, team:"Illinois",      seed:3, region:"South",   r:"south",   record:"24-8", champ:3.4,  ff:19.4, e8:48.4, s16:62.3 },
-    { rank:12, team:"Virginia",      seed:3, region:"Midwest", r:"midwest", record:"29-5", champ:2.9,  ff:18.1, e8:49.0, s16:64.1 },
+    { rank:1,  team:"Duke",          seed:1, region:"East",    r:"east",    record:"32-2", champ:20.2, ff:49.8, e8:69.5, s16:85.5 },
+    { rank:2,  team:"Michigan",      seed:1, region:"Midwest", r:"midwest", record:"31-3", champ:18.6, ff:51.3, e8:72.4, s16:90.7 },
+    { rank:3,  team:"Arizona",       seed:1, region:"West",    r:"west",    record:"32-2", champ:15.3, ff:47.0, e8:67.5, s16:84.3 },
+    { rank:4,  team:"Florida",       seed:1, region:"South",   r:"south",   record:"26-7", champ:11.4, ff:39.4, e8:65.3, s16:88.2 },
+    { rank:5,  team:"Houston",       seed:2, region:"South",   r:"south",   record:"28-6", champ:7.6,  ff:33.3, e8:58.3, s16:82.6 },
+    { rank:6,  team:"UConn",         seed:2, region:"East",    r:"east",    record:"29-5", champ:5.3,  ff:23.4, e8:52.4, s16:82.6 },
+    { rank:7,  team:"Iowa State",    seed:2, region:"Midwest", r:"midwest", record:"27-7", champ:5.1,  ff:23.3, e8:52.5, s16:80.0 },
+    { rank:8,  team:"Purdue",        seed:2, region:"West",    r:"west",    record:"27-8", champ:4.4,  ff:24.1, e8:51.6, s16:80.9 },
+    { rank:9,  team:"Michigan State",seed:3, region:"East",    r:"east",    record:"25-7", champ:2.2,  ff:13.4, e8:34.9, s16:71.0 },
+    { rank:10, team:"Gonzaga",       seed:3, region:"West",    r:"west",    record:"30-3", champ:2.0,  ff:13.9, e8:34.5, s16:70.1 },
+    { rank:11, team:"Illinois",      seed:3, region:"South",   r:"south",   record:"24-8", champ:1.8,  ff:12.3, e8:29.0, s16:69.0 },
+    { rank:12, team:"Virginia",      seed:3, region:"Midwest", r:"midwest", record:"29-5", champ:1.6,  ff:11.3, e8:31.4, s16:66.8 },
   ],
   regions: {
     East: {
@@ -303,16 +303,16 @@ const DATA = {
         { sa:2, ta:"UConn",         sb:15, tb:"Furman",          pick:"UConn",         conf:98 },
       ],
       r32: [
-        { matchup:"Duke vs UConn",              pick:"Duke",          conf:66 },
-        { matchup:"Kansas vs Louisville",        pick:"Kansas",        conf:63 },
-        { matchup:"St. John's vs Mich State",   pick:"Michigan State",conf:64 },
-        { matchup:"Ohio State vs UCLA",          pick:"UCLA",          conf:55 },
+        { matchup:"Duke vs Ohio State",          pick:"Duke",          conf:91 },
+        { matchup:"St. John's vs Kansas",        pick:"Kansas",        conf:55 },
+        { matchup:"Louisville vs Michigan State",pick:"Michigan State",conf:72 },
+        { matchup:"UCLA vs UConn",               pick:"UConn",         conf:82 },
       ],
       s16: [
         { matchup:"Duke vs Kansas",              pick:"Duke",          conf:79 },
-        { matchup:"Michigan State vs UCLA",      pick:"Michigan State",conf:75 },
+        { matchup:"Michigan State vs UConn",     pick:"UConn",         conf:57 },
       ],
-      e8: { matchup:"Duke vs Michigan State",   pick:"Duke",          conf:72 },
+      e8: { matchup:"Duke vs UConn",             pick:"Duke",          conf:66 },
       champion:"Duke"
     },
     West: {
@@ -328,16 +328,16 @@ const DATA = {
         { sa:2, ta:"Purdue",        sb:15, tb:"Queens",          pick:"Purdue",        conf:98 },
       ],
       r32: [
-        { matchup:"Arizona vs Purdue",           pick:"Arizona",       conf:64 },
-        { matchup:"Arkansas vs BYU",             pick:"Arkansas",      conf:63 },
-        { matchup:"Wisconsin vs Gonzaga",        pick:"Gonzaga",       conf:66 },
-        { matchup:"Villanova vs Miami FL",       pick:"Miami FL",      conf:55 },
+        { matchup:"Arizona vs Villanova",        pick:"Arizona",       conf:89 },
+        { matchup:"Wisconsin vs Arkansas",       pick:"Arkansas",      conf:58 },
+        { matchup:"BYU vs Gonzaga",              pick:"Gonzaga",       conf:70 },
+        { matchup:"Miami FL vs Purdue",          pick:"Purdue",        conf:80 },
       ],
       s16: [
         { matchup:"Arizona vs Arkansas",         pick:"Arizona",       conf:76 },
-        { matchup:"Gonzaga vs Miami FL",         pick:"Gonzaga",       conf:73 },
+        { matchup:"Gonzaga vs Purdue",           pick:"Purdue",        conf:57 },
       ],
-      e8: { matchup:"Arizona vs Gonzaga",        pick:"Arizona",       conf:71 },
+      e8: { matchup:"Arizona vs Purdue",         pick:"Arizona",       conf:64 },
       champion:"Arizona"
     },
     Midwest: {
@@ -353,16 +353,16 @@ const DATA = {
         { sa:2, ta:"Iowa State",    sb:15, tb:"Tennessee State", pick:"Iowa State",    conf:97 },
       ],
       r32: [
-        { matchup:"Michigan vs Iowa State",      pick:"Michigan",      conf:65 },
-        { matchup:"Alabama vs Tennessee",        pick:"Alabama",       conf:62 },
-        { matchup:"Texas Tech vs Virginia",      pick:"Virginia",      conf:63 },
-        { matchup:"Georgia vs Kentucky",         pick:"Kentucky",      conf:59 },
+        { matchup:"Michigan vs Georgia",         pick:"Michigan",      conf:90 },
+        { matchup:"Texas Tech vs Alabama",       pick:"Alabama",       conf:58 },
+        { matchup:"Tennessee vs Virginia",       pick:"Virginia",      conf:67 },
+        { matchup:"Kentucky vs Iowa State",      pick:"Iowa State",    conf:79 },
       ],
       s16: [
         { matchup:"Michigan vs Alabama",         pick:"Michigan",      conf:76 },
-        { matchup:"Virginia vs Kentucky",        pick:"Virginia",      conf:70 },
+        { matchup:"Virginia vs Iowa State",      pick:"Iowa State",    conf:60 },
       ],
-      e8: { matchup:"Michigan vs Virginia",      pick:"Michigan",      conf:73 },
+      e8: { matchup:"Michigan vs Iowa State",    pick:"Michigan",      conf:65 },
       champion:"Michigan"
     },
     South: {
@@ -378,16 +378,16 @@ const DATA = {
         { sa:2, ta:"Houston",       sb:15, tb:"Idaho",           pick:"Houston",       conf:98 },
       ],
       r32: [
-        { matchup:"Florida vs Houston",          pick:"Florida",       conf:57 },
-        { matchup:"Nebraska vs North Carolina",  pick:"Nebraska",      conf:65 },
-        { matchup:"Vanderbilt vs Illinois",      pick:"Illinois",      conf:61 },
-        { matchup:"Clemson vs Saint Mary's",    pick:"Saint Mary's", conf:55 },
+        { matchup:"Florida vs Clemson",          pick:"Florida",       conf:87 },
+        { matchup:"Vanderbilt vs Nebraska",      pick:"Nebraska",      conf:56 },
+        { matchup:"North Carolina vs Illinois",  pick:"Illinois",      conf:69 },
+        { matchup:"Saint Mary's vs Houston",    pick:"Houston",       conf:82 },
       ],
       s16: [
         { matchup:"Florida vs Nebraska",         pick:"Florida",       conf:71 },
-        { matchup:"Illinois vs Saint Mary's",   pick:"Illinois",      conf:73 },
+        { matchup:"Illinois vs Houston",         pick:"Houston",       conf:65 },
       ],
-      e8: { matchup:"Florida vs Illinois",       pick:"Florida",       conf:67 },
+      e8: { matchup:"Florida vs Houston",        pick:"Florida",       conf:52 },
       champion:"Florida"
     }
   },

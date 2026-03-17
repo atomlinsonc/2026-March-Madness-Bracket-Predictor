@@ -180,14 +180,13 @@ class TournamentSimulator:
             winner = team_a if rng.random() < p else team_b
             round1_winners.append(winner)
 
-        # Round 2: pair up in bracket order
-        # Bracket order: game 1 winner vs game 8 winner, game 2 vs 7, etc.
-        # Standard bracket: 1/16 winner plays 8/9 winner, etc.
+        # Round 2 (R32): adjacent pods meet
+        # Standard NCAA bracket: game N winner plays game N+1 winner within same pod
         r2_matchups = [
-            (round1_winners[0], round1_winners[7]),  # 1/16 vs 8/9
-            (round1_winners[3], round1_winners[4]),  # 4/13 vs 5/12
-            (round1_winners[2], round1_winners[5]),  # 3/14 vs 6/11
-            (round1_winners[1], round1_winners[6]),  # 2/15 vs 7/10
+            (round1_winners[0], round1_winners[1]),  # 1/16 winner vs 8/9 winner
+            (round1_winners[2], round1_winners[3]),  # 5/12 winner vs 4/13 winner
+            (round1_winners[4], round1_winners[5]),  # 6/11 winner vs 3/14 winner
+            (round1_winners[6], round1_winners[7]),  # 7/10 winner vs 2/15 winner
         ]
         round2_winners = []
         for team_a, team_b in r2_matchups:
@@ -318,12 +317,12 @@ class TournamentSimulator:
                     reach_counts[winner.name][2] += 1
                     r1_winners.append(winner)
 
-                # Round 2 (R32)
+                # Round 2 (R32): adjacent pods
                 r2_matchups = [
-                    (r1_winners[0], r1_winners[7]),
-                    (r1_winners[3], r1_winners[4]),
-                    (r1_winners[2], r1_winners[5]),
-                    (r1_winners[1], r1_winners[6]),
+                    (r1_winners[0], r1_winners[1]),  # 1/16 vs 8/9
+                    (r1_winners[2], r1_winners[3]),  # 5/12 vs 4/13
+                    (r1_winners[4], r1_winners[5]),  # 6/11 vs 3/14
+                    (r1_winners[6], r1_winners[7]),  # 7/10 vs 2/15
                 ]
                 r2_winners = []
                 for team_a, team_b in r2_matchups:
@@ -477,12 +476,12 @@ class SimulationResults:
                 }
                 round1_winners.append(winner)
 
-            # Round 2
+            # Round 2 (R32): adjacent pods
             r2_matchups = [
-                (round1_winners[0], round1_winners[7]),
-                (round1_winners[3], round1_winners[4]),
-                (round1_winners[2], round1_winners[5]),
-                (round1_winners[1], round1_winners[6]),
+                (round1_winners[0], round1_winners[1]),  # 1/16 vs 8/9
+                (round1_winners[2], round1_winners[3]),  # 5/12 vs 4/13
+                (round1_winners[4], round1_winners[5]),  # 6/11 vs 3/14
+                (round1_winners[6], round1_winners[7]),  # 7/10 vs 2/15
             ]
             round2_winners = []
             for i, (team_a, team_b) in enumerate(r2_matchups):
