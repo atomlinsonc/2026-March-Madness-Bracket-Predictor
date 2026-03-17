@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monetary Policy Challenge</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a href="index.html" style="position:fixed;top:12px;left:16px;z-index:999;color:#8b949e;text-decoration:none;font-size:13px;font-family:sans-serif;">← Home</a>
+  <main class="game">
+    <header class="hero">
+      <h1>Monetary Policy Challenge</h1>
+      <p>
+        You are the central banker. Keep inflation manageable, unemployment low,
+        and growth steady while avoiding a recession.
+      </p>
+    </header>
+    <section class="stats" aria-label="Economic indicators">
+      <h2>Country Dashboard</h2>
+      <div class="stat-grid" id="stat-grid"></div>
+      <p id="status-message" class="status-message"></p>
+    </section>
+    <section class="scenario" aria-live="polite">
+      <h2 id="round-title">Round 1</h2>
+      <p id="scenario-text"></p>
+      <div id="choices" class="choices"></div>
+      <article id="lesson" class="lesson hidden">
+        <h3>What You Learned</h3>
+        <p id="lesson-text"></p>
+      </article>
+      <button id="next-btn" class="next-btn hidden">Next Decision</button>
+    </section>
+    <section class="summary hidden" id="summary" aria-live="polite">
+      <h2>Final Report</h2>
+      <p id="final-score"></p>
+      <p id="final-summary"></p>
+      <button id="restart-btn">Play Again</button>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -3,40 +3,261 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Monetary Policy Challenge</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>atomlinsonc — Projects</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #21262d;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #f59e0b;
+      --blue: #2563eb;
+      --green: #16a34a;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* HEADER */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
+    .logo span { color: var(--accent); }
+    header a { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    header a:hover { color: var(--text); }
+
+    /* HERO */
+    .hero {
+      text-align: center;
+      padding: 72px 24px 56px;
+      flex: 1;
+    }
+    .hero-eyebrow {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      font-size: clamp(32px, 6vw, 56px);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 16px;
+      letter-spacing: -0.03em;
+    }
+    .hero h1 em { font-style: normal; color: var(--accent); }
+    .hero p {
+      font-size: 17px;
+      color: var(--text-muted);
+      max-width: 480px;
+      margin: 0 auto 48px;
+      line-height: 1.7;
+    }
+
+    /* PROJECT CARDS */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      text-decoration: none;
+      color: var(--text);
+      display: block;
+      transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.2s;
+      border-radius: 14px;
+    }
+    .card.march::before { background: radial-gradient(ellipse at 0% 0%, rgba(245,158,11,0.08), transparent 60%); }
+    .card.policy::before { background: radial-gradient(ellipse at 0% 0%, rgba(37,99,235,0.08), transparent 60%); }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+    .card:hover::before { opacity: 1; }
+    .card.march:hover { border-color: rgba(245,158,11,0.5); }
+    .card.policy:hover { border-color: rgba(37,99,235,0.5); }
+
+    .card-icon {
+      font-size: 36px;
+      margin-bottom: 16px;
+      display: block;
+    }
+    .card-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin-bottom: 12px;
+    }
+    .card.march .card-tag { background: rgba(245,158,11,0.15); color: var(--accent); }
+    .card.policy .card-tag { background: rgba(37,99,235,0.15); color: #93c5fd; }
+    .card h2 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .card p { font-size: 14px; color: var(--text-muted); line-height: 1.65; margin-bottom: 20px; }
+    .card-stats {
+      display: flex;
+      gap: 16px;
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+      margin-top: 4px;
+    }
+    .card-stat { text-align: center; }
+    .card-stat-val { font-size: 15px; font-weight: 700; }
+    .card.march .card-stat-val { color: var(--accent); }
+    .card.policy .card-stat-val { color: #93c5fd; }
+    .card-stat-lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .card-arrow {
+      position: absolute;
+      top: 28px;
+      right: 28px;
+      font-size: 18px;
+      color: var(--text-muted);
+      transition: transform 0.2s;
+    }
+    .card:hover .card-arrow { transform: translate(3px, -3px); }
+
+    /* TECH STACK */
+    .tech-section {
+      text-align: center;
+      padding: 32px 24px 48px;
+      border-top: 1px solid var(--border);
+    }
+    .tech-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 14px; }
+    .tech-pills { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .pill {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 20px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    footer a { color: var(--text-muted); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+  </style>
 </head>
 <body>
-  <main class="game">
-    <header class="hero">
-      <h1>Monetary Policy Challenge</h1>
-      <p>
-        You are the central banker. Keep inflation manageable, unemployment low,
-        and growth steady while avoiding a recession.
-      </p>
-    </header>
-    <section class="stats" aria-label="Economic indicators">
-      <h2>Country Dashboard</h2>
-      <div class="stat-grid" id="stat-grid"></div>
-      <p id="status-message" class="status-message"></p>
-    </section>
-    <section class="scenario" aria-live="polite">
-      <h2 id="round-title">Round 1</h2>
-      <p id="scenario-text"></p>
-      <div id="choices" class="choices"></div>
-      <article id="lesson" class="lesson hidden">
-        <h3>What You Learned</h3>
-        <p id="lesson-text"></p>
-      </article>
-      <button id="next-btn" class="next-btn hidden">Next Decision</button>
-    </section>
-    <section class="summary hidden" id="summary" aria-live="polite">
-      <h2>Final Report</h2>
-      <p id="final-score"></p>
-      <p id="final-summary"></p>
-      <button id="restart-btn">Play Again</button>
-    </section>
-  </main>
-  <script src="script.js"></script>
+
+  <header>
+    <div class="logo">atom<span>.</span>dev</div>
+    <a href="https://github.com/atomlinsonc/Monetary-Policy" target="_blank">GitHub →</a>
+  </header>
+
+  <div class="hero">
+    <div class="hero-eyebrow">Interactive Projects</div>
+    <h1>Data, Models &<br><em>Predictions</em></h1>
+    <p>Interactive tools exploring economics, sports analytics, and machine learning.</p>
+
+    <div class="cards">
+      <!-- March Madness -->
+      <a href="march_madness.html" class="card march">
+        <span class="card-arrow">↗</span>
+        <span class="card-icon">🏀</span>
+        <span class="card-tag">AI · Sports Analytics</span>
+        <h2>2026 March Madness<br>Bracket Predictor</h2>
+        <p>KenPom-style efficiency ratings + Monte Carlo simulation. 50,000 simulated tournaments, full bracket picks with confidence probabilities.</p>
+        <div class="card-stats">
+          <div class="card-stat">
+            <div class="card-stat-val">50k</div>
+            <div class="card-stat-lbl">Simulations</div>
+          </div>
+          <div class="card-stat">
+            <div class="card-stat-val">97.6%</div>
+            <div class="card-stat-lbl">Backtest Acc.</div>
+          </div>
+          <div class="card-stat">
+            <div class="card-stat-val">Duke</div>
+            <div class="card-stat-lbl">Champion Pick</div>
+          </div>
+        </div>
+      </a>
+
+      <!-- Monetary Policy -->
+      <a href="game.html" class="card policy">
+        <span class="card-arrow">↗</span>
+        <span class="card-icon">🏦</span>
+        <span class="card-tag">Interactive · Economics</span>
+        <h2>Monetary Policy<br>Challenge</h2>
+        <p>Step into the shoes of a central banker. Balance inflation, unemployment, and GDP growth across 10 rounds of economic decision-making.</p>
+        <div class="card-stats">
+          <div class="card-stat">
+            <div class="card-stat-val">10</div>
+            <div class="card-stat-lbl">Rounds</div>
+          </div>
+          <div class="card-stat">
+            <div class="card-stat-val">3</div>
+            <div class="card-stat-lbl">Indicators</div>
+          </div>
+          <div class="card-stat">
+            <div class="card-stat-val">∞</div>
+            <div class="card-stat-lbl">Scenarios</div>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <div class="tech-section">
+    <div class="tech-label">Built with</div>
+    <div class="tech-pills">
+      <span class="pill">Python 3.13</span>
+      <span class="pill">NumPy</span>
+      <span class="pill">SciPy</span>
+      <span class="pill">scikit-learn</span>
+      <span class="pill">Monte Carlo</span>
+      <span class="pill">KenPom Methodology</span>
+      <span class="pill">Logistic Regression</span>
+      <span class="pill">Vanilla JS</span>
+      <span class="pill">CSS Grid</span>
+    </div>
+  </div>
+
+  <footer>
+    <p>
+      <a href="https://github.com/atomlinsonc/Monetary-Policy" target="_blank">GitHub</a>
+      &nbsp;·&nbsp; Predictions for entertainment only
+    </p>
+  </footer>
+
 </body>
 </html>

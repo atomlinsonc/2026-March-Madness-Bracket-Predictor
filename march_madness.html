@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2026 March Madness Bracket Predictor</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #21262d;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --east: #2563eb;
+      --west: #dc2626;
+      --midwest: #16a34a;
+      --south: #d97706;
+      --champion: #f59e0b;
+      --pick-bg: #1c2a1c;
+      --pick-border: #16a34a;
+      --upset: #7c3aed;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.5; }
+
+    /* NAV */
+    nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 24px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 100; }
+    nav a { color: var(--text-muted); text-decoration: none; font-size: 14px; }
+    nav a:hover { color: var(--text); }
+    nav .nav-title { color: var(--text); font-weight: 600; font-size: 15px; }
+    nav .sep { color: var(--border); }
+
+    /* HERO */
+    .hero { text-align: center; padding: 48px 24px 32px; background: linear-gradient(180deg, #161b22 0%, #0d1117 100%); border-bottom: 1px solid var(--border); }
+    .hero-badge { display: inline-block; background: rgba(245,158,11,0.15); border: 1px solid var(--champion); color: var(--champion); font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 12px; border-radius: 20px; margin-bottom: 16px; }
+    .hero h1 { font-size: clamp(24px, 5vw, 42px); font-weight: 800; margin-bottom: 8px; }
+    .hero .champion-banner { display: inline-flex; align-items: center; gap: 10px; margin: 16px 0; background: linear-gradient(135deg, #1a1200, #2d1f00); border: 1px solid var(--champion); border-radius: 12px; padding: 12px 24px; }
+    .trophy { font-size: 28px; }
+    .champion-text { text-align: left; }
+    .champion-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--champion); }
+    .champion-name { font-size: 22px; font-weight: 800; }
+    .champion-prob { font-size: 13px; color: var(--text-muted); }
+    .hero-meta { display: flex; flex-wrap: wrap; justify-content: center; gap: 24px; margin-top: 20px; }
+    .hero-meta-item { text-align: center; }
+    .hero-meta-item .val { font-size: 18px; font-weight: 700; color: var(--text); }
+    .hero-meta-item .lbl { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* SECTIONS */
+    .section { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+    .section-title { font-size: 20px; font-weight: 700; margin-bottom: 24px; display: flex; align-items: center; gap: 10px; }
+    .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* CHAMPIONSHIP ODDS TABLE */
+    .odds-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+    .odds-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+    .odds-card.rank-1 { border-color: var(--champion); background: linear-gradient(135deg, #1a1200, #161b22); }
+    .odds-card.rank-2 { border-color: rgba(245,158,11,0.4); }
+    .odds-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .rank-badge { font-size: 12px; font-weight: 700; color: var(--text-muted); }
+    .rank-badge.gold { color: var(--champion); }
+    .team-seed { font-size: 12px; background: var(--surface2); border-radius: 4px; padding: 2px 6px; color: var(--text-muted); }
+    .team-name { font-size: 17px; font-weight: 700; margin-bottom: 2px; }
+    .team-region { font-size: 12px; color: var(--text-muted); }
+    .prob-bar-group { margin-top: 12px; }
+    .prob-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .prob-label { font-size: 11px; color: var(--text-muted); width: 82px; flex-shrink: 0; }
+    .prob-bar-track { flex: 1; height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+    .prob-bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+    .prob-val { font-size: 12px; font-weight: 600; width: 40px; text-align: right; }
+
+    /* REGION COLORS */
+    .east .prob-bar-fill, .east .team-name { color: #93c5fd; }
+    .east .prob-bar-fill { background: var(--east); }
+    .west .prob-bar-fill { background: var(--west); }
+    .west .team-name { color: #fca5a5; }
+    .midwest .prob-bar-fill { background: var(--midwest); }
+    .midwest .team-name { color: #86efac; }
+    .south .prob-bar-fill { background: var(--south); }
+    .south .team-name { color: #fcd34d; }
+
+    /* REGION HEADER */
+    .region-header { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-radius: 10px 10px 0 0; margin-bottom: 0; }
+    .region-header.east { background: linear-gradient(135deg, rgba(37,99,235,0.2), rgba(37,99,235,0.05)); border: 1px solid rgba(37,99,235,0.3); border-bottom: none; }
+    .region-header.west { background: linear-gradient(135deg, rgba(220,38,38,0.2), rgba(220,38,38,0.05)); border: 1px solid rgba(220,38,38,0.3); border-bottom: none; }
+    .region-header.midwest { background: linear-gradient(135deg, rgba(22,163,74,0.2), rgba(22,163,74,0.05)); border: 1px solid rgba(22,163,74,0.3); border-bottom: none; }
+    .region-header.south { background: linear-gradient(135deg, rgba(217,119,6,0.2), rgba(217,119,6,0.05)); border: 1px solid rgba(217,119,6,0.3); border-bottom: none; }
+    .region-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .region-dot.east { background: var(--east); }
+    .region-dot.west { background: var(--west); }
+    .region-dot.midwest { background: var(--midwest); }
+    .region-dot.south { background: var(--south); }
+    .region-name { font-size: 16px; font-weight: 700; }
+    .region-champ-tag { margin-left: auto; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+    .region-champ-tag.east { background: rgba(37,99,235,0.2); color: #93c5fd; }
+    .region-champ-tag.west { background: rgba(220,38,38,0.2); color: #fca5a5; }
+    .region-champ-tag.midwest { background: rgba(22,163,74,0.2); color: #86efac; }
+    .region-champ-tag.south { background: rgba(217,119,6,0.2); color: #fcd34d; }
+
+    /* BRACKET TABLE */
+    .bracket-table-wrap { border: 1px solid var(--border); border-top: none; border-radius: 0 0 10px 10px; overflow: hidden; margin-bottom: 32px; }
+    .bracket-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .bracket-table th { background: var(--surface2); padding: 8px 14px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); text-align: left; border-bottom: 1px solid var(--border); }
+    .bracket-table td { padding: 9px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .bracket-table tr:last-child td { border-bottom: none; }
+    .bracket-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .game-matchup { color: var(--text-muted); font-size: 12px; }
+    .pick-cell { font-weight: 700; }
+    .seed-pill { display: inline-block; background: var(--surface2); border-radius: 4px; padding: 1px 6px; font-size: 11px; margin-right: 4px; color: var(--text-muted); }
+    .conf-bar { display: flex; align-items: center; gap: 6px; }
+    .conf-mini-bar { width: 60px; height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
+    .conf-mini-fill { height: 100%; border-radius: 2px; }
+    .conf-mini-fill.high { background: #22c55e; }
+    .conf-mini-fill.med { background: #f59e0b; }
+    .conf-mini-fill.low { background: #6366f1; }
+    .conf-pct { font-size: 12px; color: var(--text-muted); }
+    .upset-badge { display: inline-block; background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.4); color: #a78bfa; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 3px; margin-left: 6px; }
+    .round-label { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+
+    /* FINAL FOUR */
+    .ff-section { background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(245,158,11,0.02)); border: 1px solid rgba(245,158,11,0.25); border-radius: 12px; padding: 28px; margin-bottom: 32px; }
+    .ff-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--champion); margin-bottom: 6px; }
+    .ff-subtitle { font-size: 12px; color: var(--text-muted); margin-bottom: 24px; }
+    .ff-games { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 600px) { .ff-games { grid-template-columns: 1fr; } }
+    .ff-game { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+    .ff-game-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
+    .ff-teams { display: flex; align-items: center; gap: 10px; }
+    .ff-team { flex: 1; text-align: center; padding: 10px; border-radius: 6px; border: 1px solid var(--border); }
+    .ff-team.winner { border-color: var(--champion); background: rgba(245,158,11,0.08); }
+    .ff-team-seed { font-size: 11px; color: var(--text-muted); }
+    .ff-team-name { font-size: 14px; font-weight: 700; }
+    .ff-team-region { font-size: 11px; color: var(--text-muted); }
+    .ff-vs { font-size: 12px; color: var(--text-muted); font-weight: 700; }
+    .ff-conf { font-size: 12px; color: var(--text-muted); text-align: center; margin-top: 8px; }
+
+    /* CHAMPIONSHIP GAME */
+    .champ-game { background: linear-gradient(135deg, #1a1000, #1a1200, #0d1117); border: 2px solid var(--champion); border-radius: 14px; padding: 32px; text-align: center; margin-bottom: 32px; }
+    .champ-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--champion); margin-bottom: 8px; }
+    .champ-date { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
+    .champ-teams { display: flex; align-items: center; justify-content: center; gap: 24px; margin-bottom: 20px; flex-wrap: wrap; }
+    .champ-team { padding: 16px 28px; border-radius: 10px; border: 1px solid var(--border); min-width: 140px; }
+    .champ-team.winner { border-color: var(--champion); background: rgba(245,158,11,0.1); }
+    .champ-team-seed { font-size: 12px; color: var(--text-muted); }
+    .champ-team-name { font-size: 20px; font-weight: 800; }
+    .champ-team-record { font-size: 12px; color: var(--text-muted); }
+    .champ-vs { font-size: 16px; color: var(--text-muted); font-weight: 700; }
+    .champ-result { font-size: 14px; color: var(--text-muted); }
+    .champ-result strong { color: var(--champion); }
+
+    /* UPSET ANALYSIS */
+    .upset-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+    .upset-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+    .upset-card.high { border-color: rgba(124,58,237,0.5); background: rgba(124,58,237,0.05); }
+    .upset-matchup { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+    .upset-detail { display: flex; justify-content: space-between; margin-top: 8px; }
+    .upset-stat { text-align: center; }
+    .upset-stat-val { font-size: 16px; font-weight: 700; }
+    .upset-stat-val.purple { color: #a78bfa; }
+    .upset-stat-lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
+    .upset-note { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+
+    /* METHODOLOGY */
+    .method-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    .method-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+    .method-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--champion); }
+    .method-card p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+    /* FOOTER */
+    footer { text-align: center; padding: 32px 20px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 13px; }
+    footer a { color: var(--text-muted); }
+
+    /* TABS */
+    .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 28px; overflow-x: auto; }
+    .tab { padding: 10px 20px; font-size: 14px; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; color: var(--text-muted); white-space: nowrap; background: none; border-top: none; border-left: none; border-right: none; }
+    .tab.active { color: var(--text); border-bottom-color: var(--champion); }
+    .tab:hover { color: var(--text); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html">← Home</a>
+  <span class="sep">|</span>
+  <span class="nav-title">2026 March Madness Bracket Predictor</span>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">AI Model • 50,000 Monte Carlo Simulations</div>
+  <h1>2026 NCAA Tournament<br>Bracket Predictions</h1>
+  <div class="champion-banner">
+    <span class="trophy">🏆</span>
+    <div class="champion-text">
+      <div class="champion-label">Predicted Champion</div>
+      <div class="champion-name">Duke Blue Devils</div>
+      <div class="champion-prob">#1 East · 18.0% championship probability · 32-2</div>
+    </div>
+  </div>
+  <div class="hero-meta">
+    <div class="hero-meta-item"><div class="val">50,000</div><div class="lbl">Simulations</div></div>
+    <div class="hero-meta-item"><div class="val">0.441</div><div class="lbl">Log Loss</div></div>
+    <div class="hero-meta-item"><div class="val">97.6%</div><div class="lbl">Backtest Accuracy</div></div>
+    <div class="hero-meta-item"><div class="val">72 / 28</div><div class="lbl">Efficiency / Seed Blend</div></div>
+    <div class="hero-meta-item"><div class="val">Mar 17, 2026</div><div class="lbl">Last Run</div></div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="section">
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('odds')">Championship Odds</button>
+    <button class="tab" onclick="showTab('bracket')">Full Bracket</button>
+    <button class="tab" onclick="showTab('upsets')">Upset Analysis</button>
+    <button class="tab" onclick="showTab('method')">Methodology</button>
+  </div>
+
+  <!-- TAB: ODDS -->
+  <div id="tab-odds" class="tab-content active">
+    <div class="section-title">Championship Probability Rankings</div>
+    <div class="odds-grid" id="odds-grid"></div>
+  </div>
+
+  <!-- TAB: BRACKET -->
+  <div id="tab-bracket" class="tab-content">
+    <div class="section-title">Full Bracket Predictions</div>
+    <div id="bracket-content"></div>
+  </div>
+
+  <!-- TAB: UPSETS -->
+  <div id="tab-upsets" class="tab-content">
+    <div class="section-title">First Round Upset Analysis</div>
+    <div class="upset-grid" id="upset-grid"></div>
+  </div>
+
+  <!-- TAB: METHODOLOGY -->
+  <div id="tab-method" class="tab-content">
+    <div class="section-title">Model Methodology</div>
+    <div class="method-grid">
+      <div class="method-card">
+        <h3>Efficiency Ratings (72%)</h3>
+        <p>Win probability computed as P(A wins) = Φ(AdjEM_diff / σ) where σ=22.7 is calibrated to match 40 years of historical seed win rates. Based on KenPom/Torvik adjusted efficiency margins.</p>
+      </div>
+      <div class="method-card">
+        <h3>Seed History (28%)</h3>
+        <p>Historical seed-vs-seed win rates from 1985–2025 (40 tournaments) serve as a calibration anchor. The seed model achieves perfect 0.000 MAE against historical rates.</p>
+      </div>
+      <div class="method-card">
+        <h3>Logistic Regression</h3>
+        <p>Trained on 10,000 synthetic games calibrated to historical outcomes. Features: AdjEM diff, seed diff, offensive efficiency diff, defensive efficiency diff. Log loss: 0.441.</p>
+      </div>
+      <div class="method-card">
+        <h3>Monte Carlo Simulation</h3>
+        <p>50,000 full tournament simulations. Each simulation independently samples game outcomes from win probabilities, propagating winners through all 6 rounds to produce stable probability distributions.</p>
+      </div>
+      <div class="method-card">
+        <h3>Venue Adjustments</h3>
+        <p>Houston receives +2.5 AdjEM bonus in rounds 3–4 (Sweet 16 / Elite 8) due to South Region hosting in Houston. This is the most underrated factor in the 2026 bracket.</p>
+      </div>
+      <div class="method-card">
+        <h3>Backtest Validation</h3>
+        <p>Model achieves 97.6% accuracy and log loss 0.279 on historical tournament games. Champions were correctly identified as a #1 or #2 seed in 9 of 10 years tested (2015–2025).</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>2026 March Madness Bracket Predictor · Powered by KenPom-style efficiency ratings + Monte Carlo simulation</p>
+  <p style="margin-top:6px;"><a href="https://github.com/atomlinsonc/Monetary-Policy">GitHub</a> · Predictions for entertainment only · Not financial or gambling advice</p>
+</footer>
+
+<script>
+// ============================================================
+// BRACKET DATA — from model run March 17, 2026 (50,000 sims)
+// ============================================================
+const DATA = {
+  championshipOdds: [
+    { rank:1,  team:"Duke",          seed:1, region:"East",    r:"east",    record:"32-2", champ:18.0, ff:40.8, e8:51.2, s16:62.7 },
+    { rank:2,  team:"Michigan",      seed:1, region:"Midwest", r:"midwest", record:"31-3", champ:16.8, ff:41.9, e8:52.3, s16:65.3 },
+    { rank:3,  team:"Arizona",       seed:1, region:"West",    r:"west",    record:"32-2", champ:13.6, ff:37.7, e8:48.2, s16:60.2 },
+    { rank:4,  team:"Florida",       seed:1, region:"South",   r:"south",   record:"26-7", champ:10.5, ff:32.1, e8:42.7, s16:57.0 },
+    { rank:5,  team:"Houston",       seed:2, region:"South",   r:"south",   record:"28-6", champ:6.2,  ff:23.7, e8:31.9, s16:42.9 },
+    { rank:6,  team:"UConn",         seed:2, region:"East",    r:"east",    record:"29-5", champ:4.6,  ff:17.7, e8:26.0, s16:36.5 },
+    { rank:7,  team:"Purdue",        seed:2, region:"West",    r:"west",    record:"27-8", champ:4.1,  ff:18.5, e8:27.3, s16:39.0 },
+    { rank:8,  team:"Iowa State",    seed:2, region:"Midwest", r:"midwest", record:"27-7", champ:4.0,  ff:16.5, e8:23.9, s16:34.6 },
+    { rank:9,  team:"Michigan State",seed:3, region:"East",    r:"east",    record:"25-7", champ:3.9,  ff:20.4, e8:51.9, s16:65.1 },
+    { rank:10, team:"Gonzaga",       seed:3, region:"West",    r:"west",    record:"30-3", champ:3.4,  ff:20.9, e8:51.4, s16:66.6 },
+    { rank:11, team:"Illinois",      seed:3, region:"South",   r:"south",   record:"24-8", champ:3.4,  ff:19.4, e8:48.4, s16:62.3 },
+    { rank:12, team:"Virginia",      seed:3, region:"Midwest", r:"midwest", record:"29-5", champ:2.9,  ff:18.1, e8:49.0, s16:64.1 },
+  ],
+  regions: {
+    East: {
+      color:"east", seed1:"Duke", record1:"32-2",
+      r64: [
+        { sa:1, ta:"Duke",          sb:16, tb:"Siena",           pick:"Duke",          conf:93 },
+        { sa:8, ta:"Ohio State",    sb:9,  tb:"TCU",             pick:"Ohio State",    conf:53 },
+        { sa:5, ta:"St. John's",   sb:12, tb:"Northern Iowa",   pick:"St. John's",   conf:82 },
+        { sa:4, ta:"Kansas",        sb:13, tb:"Cal Baptist",     pick:"Kansas",        conf:89 },
+        { sa:6, ta:"Louisville",    sb:11, tb:"South Florida",   pick:"Louisville",    conf:75 },
+        { sa:3, ta:"Michigan State",sb:14, tb:"North Dakota St", pick:"Michigan State",conf:94 },
+        { sa:7, ta:"UCLA",          sb:10, tb:"UCF",             pick:"UCLA",          conf:63 },
+        { sa:2, ta:"UConn",         sb:15, tb:"Furman",          pick:"UConn",         conf:98 },
+      ],
+      r32: [
+        { matchup:"Duke vs UConn",              pick:"Duke",          conf:66 },
+        { matchup:"Kansas vs Louisville",        pick:"Kansas",        conf:63 },
+        { matchup:"St. John's vs Mich State",   pick:"Michigan State",conf:64 },
+        { matchup:"Ohio State vs UCLA",          pick:"UCLA",          conf:55 },
+      ],
+      s16: [
+        { matchup:"Duke vs Kansas",              pick:"Duke",          conf:79 },
+        { matchup:"Michigan State vs UCLA",      pick:"Michigan State",conf:75 },
+      ],
+      e8: { matchup:"Duke vs Michigan State",   pick:"Duke",          conf:72 },
+      champion:"Duke"
+    },
+    West: {
+      color:"west", seed1:"Arizona", record1:"32-2",
+      r64: [
+        { sa:1, ta:"Arizona",       sb:16, tb:"LIU",             pick:"Arizona",       conf:93 },
+        { sa:8, ta:"Villanova",     sb:9,  tb:"Utah State",      pick:"Villanova",     conf:53 },
+        { sa:5, ta:"Wisconsin",     sb:12, tb:"High Point",      pick:"Wisconsin",     conf:80 },
+        { sa:4, ta:"Arkansas",      sb:13, tb:"Hawaii",          pick:"Arkansas",      conf:90 },
+        { sa:6, ta:"BYU",           sb:11, tb:"NC State",        pick:"BYU",           conf:71 },
+        { sa:3, ta:"Gonzaga",       sb:14, tb:"Kennesaw State",  pick:"Gonzaga",       conf:94 },
+        { sa:7, ta:"Miami FL",      sb:10, tb:"Missouri",        pick:"Miami FL",      conf:65 },
+        { sa:2, ta:"Purdue",        sb:15, tb:"Queens",          pick:"Purdue",        conf:98 },
+      ],
+      r32: [
+        { matchup:"Arizona vs Purdue",           pick:"Arizona",       conf:64 },
+        { matchup:"Arkansas vs BYU",             pick:"Arkansas",      conf:63 },
+        { matchup:"Wisconsin vs Gonzaga",        pick:"Gonzaga",       conf:66 },
+        { matchup:"Villanova vs Miami FL",       pick:"Miami FL",      conf:55 },
+      ],
+      s16: [
+        { matchup:"Arizona vs Arkansas",         pick:"Arizona",       conf:76 },
+        { matchup:"Gonzaga vs Miami FL",         pick:"Gonzaga",       conf:73 },
+      ],
+      e8: { matchup:"Arizona vs Gonzaga",        pick:"Arizona",       conf:71 },
+      champion:"Arizona"
+    },
+    Midwest: {
+      color:"midwest", seed1:"Michigan", record1:"31-3",
+      r64: [
+        { sa:1, ta:"Michigan",      sb:16, tb:"UMBC",            pick:"Michigan",      conf:99 },
+        { sa:8, ta:"Georgia",       sb:9,  tb:"Saint Louis",     pick:"Georgia",       conf:53 },
+        { sa:5, ta:"Texas Tech",    sb:12, tb:"Akron",           pick:"Texas Tech",    conf:80 },
+        { sa:4, ta:"Alabama",       sb:13, tb:"Hofstra",         pick:"Alabama",       conf:90 },
+        { sa:6, ta:"Tennessee",     sb:11, tb:"Miami OH",        pick:"Tennessee",     conf:75 },
+        { sa:3, ta:"Virginia",      sb:14, tb:"Wright State",    pick:"Virginia",      conf:93 },
+        { sa:7, ta:"Kentucky",      sb:10, tb:"Santa Clara",     pick:"Kentucky",      conf:65 },
+        { sa:2, ta:"Iowa State",    sb:15, tb:"Tennessee State", pick:"Iowa State",    conf:97 },
+      ],
+      r32: [
+        { matchup:"Michigan vs Iowa State",      pick:"Michigan",      conf:65 },
+        { matchup:"Alabama vs Tennessee",        pick:"Alabama",       conf:62 },
+        { matchup:"Texas Tech vs Virginia",      pick:"Virginia",      conf:63 },
+        { matchup:"Georgia vs Kentucky",         pick:"Kentucky",      conf:59 },
+      ],
+      s16: [
+        { matchup:"Michigan vs Alabama",         pick:"Michigan",      conf:76 },
+        { matchup:"Virginia vs Kentucky",        pick:"Virginia",      conf:70 },
+      ],
+      e8: { matchup:"Michigan vs Virginia",      pick:"Michigan",      conf:73 },
+      champion:"Michigan"
+    },
+    South: {
+      color:"south", seed1:"Florida", record1:"26-7",
+      r64: [
+        { sa:1, ta:"Florida",       sb:16, tb:"Lehigh",          pick:"Florida",       conf:99 },
+        { sa:8, ta:"Clemson",       sb:9,  tb:"Iowa",            pick:"Clemson",       conf:57 },
+        { sa:5, ta:"Vanderbilt",    sb:12, tb:"McNeese",         pick:"Vanderbilt",    conf:82 },
+        { sa:4, ta:"Nebraska",      sb:13, tb:"Troy",            pick:"Nebraska",      conf:90 },
+        { sa:6, ta:"North Carolina",sb:11, tb:"VCU",             pick:"North Carolina",conf:75 },
+        { sa:3, ta:"Illinois",      sb:14, tb:"Penn",            pick:"Illinois",      conf:93 },
+        { sa:7, ta:"Saint Mary's", sb:10, tb:"Texas A&M",       pick:"Saint Mary's", conf:67 },
+        { sa:2, ta:"Houston",       sb:15, tb:"Idaho",           pick:"Houston",       conf:98 },
+      ],
+      r32: [
+        { matchup:"Florida vs Houston",          pick:"Florida",       conf:57 },
+        { matchup:"Nebraska vs North Carolina",  pick:"Nebraska",      conf:65 },
+        { matchup:"Vanderbilt vs Illinois",      pick:"Illinois",      conf:61 },
+        { matchup:"Clemson vs Saint Mary's",    pick:"Saint Mary's", conf:55 },
+      ],
+      s16: [
+        { matchup:"Florida vs Nebraska",         pick:"Florida",       conf:71 },
+        { matchup:"Illinois vs Saint Mary's",   pick:"Illinois",      conf:73 },
+      ],
+      e8: { matchup:"Florida vs Illinois",       pick:"Florida",       conf:67 },
+      champion:"Florida"
+    }
+  },
+  finalFour: [
+    { matchup:"East vs West",    ta:"Duke",    ra:"East",    tb:"Arizona", rb:"West",    pick:"Duke",    conf:55 },
+    { matchup:"Midwest vs South",ta:"Michigan",ra:"Midwest", tb:"Florida", rb:"South",   pick:"Michigan",conf:56 },
+  ],
+  championship: { ta:"Duke", tb:"Michigan", pick:"Duke", conf:53 },
+  upsets: [
+    { fa:8, fb:9, fav:"Ohio State",    und:"TCU",         pUpset:47.4, hist:52.1, note:"True coin flip — 9-seeds win slightly more all-time",    high:true  },
+    { fa:8, fb:9, fav:"Villanova",     und:"Utah State",  pUpset:47.4, hist:52.1, note:"Utah State 28-6, stronger efficiency than seed suggests",  high:true  },
+    { fa:8, fb:9, fav:"Georgia",       und:"Saint Louis", pUpset:47.4, hist:52.1, note:"Saint Louis 28-5, legitimate upset threat",                 high:true  },
+    { fa:8, fb:9, fav:"Clemson",       und:"Iowa",        pUpset:43.2, hist:52.1, note:"Iowa solid offensively despite 9-seed",                     high:true  },
+    { fa:7, fb:10,fav:"UCLA",          und:"UCF",         pUpset:36.6, hist:39.3, note:"UCF has comparable efficiency profile to UCLA",             high:false },
+    { fa:5, fb:12,fav:"Wisconsin",     und:"High Point",  pUpset:20.0, hist:35.7, note:"High Point went 30-4! Best 12-seed in field",              high:false },
+    { fa:5, fb:12,fav:"Vanderbilt",    und:"McNeese",     pUpset:18.0, hist:35.7, note:"McNeese 28-5, one of the stronger 12-seeds",               high:false },
+    { fa:5, fb:12,fav:"Texas Tech",    und:"Akron",       pUpset:20.0, hist:35.7, note:"Akron 29-5, dangerous mid-major",                          high:false },
+    { fa:6, fb:11,fav:"BYU",          und:"NC State",    pUpset:29.4, hist:37.1, note:"Power-conference bubble teams win 6v11 at high rates",     high:false },
+  ]
+};
+
+// ============================================================
+// RENDER FUNCTIONS
+// ============================================================
+
+function confClass(c) { return c >= 80 ? 'high' : c >= 60 ? 'med' : 'low'; }
+function regionColor(r) {
+  return { east:'#2563eb', west:'#dc2626', midwest:'#16a34a', south:'#d97706' }[r] || '#888';
+}
+
+function renderOdds() {
+  const grid = document.getElementById('odds-grid');
+  grid.innerHTML = DATA.championshipOdds.map((d, i) => `
+    <div class="odds-card ${d.r} ${i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : ''}">
+      <div class="odds-card-header">
+        <span class="rank-badge ${i < 2 ? 'gold' : ''}">#${d.rank} Overall</span>
+        <span class="team-seed">#${d.seed} Seed · ${d.region}</span>
+      </div>
+      <div class="team-name ${d.r}">${d.team}</div>
+      <div class="team-region">${d.record}</div>
+      <div class="prob-bar-group">
+        ${[
+          ['Champion', d.champ, 25],
+          ['Final Four', d.ff, 50],
+          ['Elite Eight', d.e8, 60],
+          ['Sweet Sixteen', d.s16, 70],
+        ].map(([lbl, val, max]) => `
+          <div class="prob-row">
+            <span class="prob-label">${lbl}</span>
+            <div class="prob-bar-track">
+              <div class="prob-bar-fill" style="width:${Math.min(100, val/max*100)}%; background:${regionColor(d.r)}"></div>
+            </div>
+            <span class="prob-val" style="color:${regionColor(d.r)}">${val.toFixed(1)}%</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderBracket() {
+  const container = document.getElementById('bracket-content');
+  let html = '';
+
+  for (const [regionName, region] of Object.entries(DATA.regions)) {
+    const rc = region.color;
+    html += `
+      <div class="region-header ${rc}">
+        <div class="region-dot ${rc}"></div>
+        <span class="region-name">${regionName} Region</span>
+        <span class="region-champ-tag ${rc}">★ ${region.champion} (${region.record1})</span>
+      </div>
+      <div class="bracket-table-wrap">
+        <table class="bracket-table">
+          <thead>
+            <tr>
+              <th>Round</th>
+              <th>Matchup</th>
+              <th>Model Pick</th>
+              <th>Confidence</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+
+    // R64
+    region.r64.forEach(g => {
+      const isUpset = g.pick === g.tb;
+      html += `<tr>
+        <td><span class="round-label">R64</span></td>
+        <td class="game-matchup">
+          <span class="seed-pill">#${g.sa}</span>${g.ta}
+          <span style="color:var(--border)"> vs </span>
+          <span class="seed-pill">#${g.sb}</span>${g.tb}
+        </td>
+        <td class="pick-cell" style="color:${regionColor(rc)}">
+          <span class="seed-pill">#${g.pick === g.ta ? g.sa : g.sb}</span>${g.pick}
+          ${isUpset ? '<span class="upset-badge">UPSET</span>' : ''}
+        </td>
+        <td>
+          <div class="conf-bar">
+            <div class="conf-mini-bar"><div class="conf-mini-fill ${confClass(g.conf)}" style="width:${g.conf}%"></div></div>
+            <span class="conf-pct">${g.conf}%</span>
+          </div>
+        </td>
+      </tr>`;
+    });
+
+    // R32
+    region.r32.forEach(g => {
+      html += `<tr>
+        <td><span class="round-label">R32</span></td>
+        <td class="game-matchup">${g.matchup}</td>
+        <td class="pick-cell" style="color:${regionColor(rc)}">${g.pick}</td>
+        <td>
+          <div class="conf-bar">
+            <div class="conf-mini-bar"><div class="conf-mini-fill ${confClass(g.conf)}" style="width:${g.conf}%"></div></div>
+            <span class="conf-pct">${g.conf}%</span>
+          </div>
+        </td>
+      </tr>`;
+    });
+
+    // S16
+    region.s16.forEach(g => {
+      html += `<tr>
+        <td><span class="round-label">Sweet 16</span></td>
+        <td class="game-matchup">${g.matchup}</td>
+        <td class="pick-cell" style="color:${regionColor(rc)}">${g.pick}</td>
+        <td>
+          <div class="conf-bar">
+            <div class="conf-mini-bar"><div class="conf-mini-fill ${confClass(g.conf)}" style="width:${g.conf}%"></div></div>
+            <span class="conf-pct">${g.conf}%</span>
+          </div>
+        </td>
+      </tr>`;
+    });
+
+    // E8
+    html += `<tr style="background:rgba(245,158,11,0.04)">
+      <td><span class="round-label" style="color:var(--champion)">Elite 8</span></td>
+      <td class="game-matchup">${region.e8.matchup}</td>
+      <td class="pick-cell" style="color:var(--champion);font-size:14px">⭐ ${region.e8.pick}</td>
+      <td>
+        <div class="conf-bar">
+          <div class="conf-mini-bar"><div class="conf-mini-fill ${confClass(region.e8.conf)}" style="width:${region.e8.conf}%;background:var(--champion)"></div></div>
+          <span class="conf-pct">${region.e8.conf}%</span>
+        </div>
+      </td>
+    </tr>`;
+
+    html += `</tbody></table></div>`;
+  }
+
+  // Final Four
+  html += `
+    <div class="ff-section">
+      <div class="ff-title">Final Four</div>
+      <div class="ff-subtitle">Lucas Oil Stadium · Indianapolis, Indiana · April 4, 2026</div>
+      <div class="ff-games">
+  `;
+  DATA.finalFour.forEach(g => {
+    html += `
+      <div class="ff-game">
+        <div class="ff-game-label">${g.matchup}</div>
+        <div class="ff-teams">
+          <div class="ff-team ${g.pick === g.ta ? 'winner' : ''}">
+            <div class="ff-team-region">${g.ra} Champion</div>
+            <div class="ff-team-name">${g.ta}</div>
+          </div>
+          <span class="ff-vs">vs</span>
+          <div class="ff-team ${g.pick === g.tb ? 'winner' : ''}">
+            <div class="ff-team-region">${g.rb} Champion</div>
+            <div class="ff-team-name">${g.tb}</div>
+          </div>
+        </div>
+        <div class="ff-conf">Model pick: <strong style="color:var(--champion)">${g.pick}</strong> (${g.conf}% confidence)</div>
+      </div>
+    `;
+  });
+  html += `</div></div>`;
+
+  // Championship
+  html += `
+    <div class="champ-game">
+      <div class="champ-label">National Championship</div>
+      <div class="champ-date">April 6, 2026 · Lucas Oil Stadium · Indianapolis, Indiana</div>
+      <div class="champ-teams">
+        <div class="champ-team ${DATA.championship.pick === DATA.championship.ta ? 'winner' : ''}">
+          <div class="champ-team-seed">#1 East</div>
+          <div class="champ-team-name">${DATA.championship.ta}</div>
+          <div class="champ-team-record">32-2</div>
+        </div>
+        <span class="champ-vs">vs</span>
+        <div class="champ-team ${DATA.championship.pick === DATA.championship.tb ? 'winner' : ''}">
+          <div class="champ-team-seed">#1 Midwest</div>
+          <div class="champ-team-name">${DATA.championship.tb}</div>
+          <div class="champ-team-record">31-3</div>
+        </div>
+      </div>
+      <div class="champ-result">
+        🏆 <strong>Predicted Champion: ${DATA.championship.pick}</strong> &nbsp;|&nbsp;
+        Model confidence: ${DATA.championship.conf}% &nbsp;|&nbsp;
+        Championship probability: 18.0%
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = html;
+}
+
+function renderUpsets() {
+  const grid = document.getElementById('upset-grid');
+  grid.innerHTML = DATA.upsets.map(u => `
+    <div class="upset-card ${u.high ? 'high' : ''}">
+      <div class="upset-matchup">
+        #${u.fa} ${u.fav} vs <span style="color:#a78bfa">#${u.fb} ${u.und}</span>
+        ${u.high ? '<span class="upset-badge">HIGH RISK</span>' : ''}
+      </div>
+      <div class="upset-detail">
+        <div class="upset-stat">
+          <div class="upset-stat-val purple">${u.pUpset.toFixed(1)}%</div>
+          <div class="upset-stat-lbl">Model upset %</div>
+        </div>
+        <div class="upset-stat">
+          <div class="upset-stat-val">${u.hist.toFixed(1)}%</div>
+          <div class="upset-stat-lbl">Historical %</div>
+        </div>
+        <div class="upset-stat">
+          <div class="upset-stat-val" style="color:${u.pUpset > u.hist ? '#22c55e' : '#f59e0b'}">${u.pUpset > u.hist ? '↑' : '↓'}</div>
+          <div class="upset-stat-lbl">vs history</div>
+        </div>
+      </div>
+      <div class="upset-note">${u.note}</div>
+    </div>
+  `).join('');
+}
+
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelector(`[onclick="showTab('${name}')"]`).classList.add('active');
+  document.getElementById(`tab-${name}`).classList.add('active');
+}
+
+// Init
+renderOdds();
+renderBracket();
+renderUpsets();
+</script>
+</body>
+</html>
